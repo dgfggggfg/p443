@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="theme-color" content="#05060a">
+<title>EAGLE Panel — Railway Edition</title>
+<link rel="icon" type="image/svg+xml" href="/favicon.ico">
+<link rel="stylesheet" href="/assets/app.css?v=2">
+</head>
+<body>
+<div class="orbs"><i></i><i></i><i></i></div>
+
+<!-- ══════════ ورود ══════════ -->
+<div id="authView" class="auth-wrap" style="display:none">
+  <div class="auth-card">
+    <div class="logo-row">
+      <div class="logo-badge">🦅</div>
+      <div class="logo-name">EAGLE Panel<small>RAILWAY EDITION</small></div>
+    </div>
+    <p class="auth-sub">پنل مدیریت کانفیگ — سریع، مینیمال، زنده</p>
+
+    <div id="authErr" class="auth-err"></div>
+    <div id="passHint" class="default-pass-hint" style="display:none">رمز پیش‌فرض: <span class="key">P443</span> — بعد از تغییر رمز این پیام حذف می‌شود</div>
+
+    <form id="loginForm" autocomplete="off">
+      <div class="field">
+        <label>نام کاربری</label>
+        <input class="inp" id="lgUser" placeholder="admin" autocomplete="username">
+      </div>
+      <div class="field">
+        <label>رمز عبور</label>
+        <input class="inp" id="lgPass" type="password" placeholder="••••••••" autocomplete="current-password">
+      </div>
+      <button class="btn btn-primary btn-block btn-lg" type="submit" id="lgBtn">ورود به پنل</button>
+    </form>
+
+    <div class="auth-sep">اتصال اختیاری به ریلوی</div>
+    <details class="railway-mini" id="railMini">
+      <summary>
+        <span class="chip">🛰️</span>
+        <span>توکن ریلوی — نمایش اعتبار $5 در داشبورد</span>
+      </summary>
+      <div class="rail-body">
+        <div class="field" style="margin:10px 0 10px">
+          <input class="inp inp-mono" id="railTokenLogin" placeholder="Railway API Token" dir="ltr">
+        </div>
+        <button class="btn btn-block" id="railSaveLogin" type="button" style="background:rgba(139,92,246,.14);border-color:rgba(139,92,246,.35);color:#c4b5fd">ذخیره توکن ریلوی</button>
+        <div class="rail-hint">توکن از <b>railway.com/account/tokens</b> قابل ساخت است. بعد از ورود، کارت «اعتبار ریلوی» در داشبورد ظاهر می‌شود. <a href="https://railway.com/account/tokens" target="_blank" rel="noopener">ساخت توکن ↗</a></div>
+      </div>
+    </details>
+  </div>
+</div>
+
+<!-- ══════════ پوسته‌ی پنل ══════════ -->
+<div id="appShell" class="app">
+  <aside class="sidebar" id="sidebar">
+    <button class="collapse-btn" id="collapseBtn" title="جمع/باز کردن"><i>›</i></button>
+    <div class="side-head">
+      <div class="logo-badge">🦅</div>
+      <div class="side-title"><b>EAGLE Panel</b><span id="verTag">RAILWAY · v2</span></div>
+    </div>
+
+    <nav class="nav">
+      <div class="nav-label">منوی اصلی</div>
+      <button class="nav-item active" data-page="dashboard"><span class="ic">🏠</span><span>داشبورد</span></button>
+      <button class="nav-item" data-page="configs"><span class="ic">🔗</span><span>کانفیگ‌ها</span><span class="cnt" id="navCntLinks">0</span></button>
+      <button class="nav-item" data-page="groups"><span class="ic">📁</span><span>گروه‌ها</span><span class="cnt" id="navCntSubs">0</span></button>
+      <button class="nav-item" data-page="create"><span class="ic">✨</span><span>ساخت کانفیگ</span></button>
+      <div class="nav-label">بازدید و مانیتور</div>
+      <button class="nav-item" data-page="stats"><span class="ic">📊</span><span>آمار</span></button>
+      <button class="nav-item" data-page="logs"><span class="ic">📋</span><span>لاگ فعالیت</span></button>
+      <button class="nav-item" data-page="system"><span class="ic">🖥️</span><span>سیستم</span></button>
+      <div class="nav-label">ابزارها</div>
+      <button class="nav-item" data-page="telegram"><span class="ic">✈️</span><span>ربات تلگرام</span></button>
+      <button class="nav-item" data-page="news"><span class="ic">📰</span><span>اخبار</span></button>
+    </nav>
+
+    <div class="side-foot">
+      <button class="foot-btn" id="themeBtn"><span class="ic">☀️</span><span>تم روشن</span></button>
+      <button class="foot-btn" id="refreshBtn"><span class="ic">🔄</span><span>بروزرسانی آمار</span></button>
+      <button class="foot-btn" id="updBtx" style="color:#4ade80"><span class="ic">🔄</span><span>بروزرسانی پنل</span></button>
+      <button class="foot-btn" id="logoutBtn" style="color:#f87171"><span class="ic">⏻</span><span>خروج</span></button>
+    </div>
+  </aside>
+  <div class="scrim" id="scrim"></div>
+
+  <main class="main" id="main">
+    <div style="display:flex;justify-content:flex-end;margin-bottom:14px">
+      <button class="burger" id="burgerBtn">☰</button>
+    </div>
+
+    <!-- داشبورد -->
+    <section class="view on" id="view-dashboard">
+      <div class="page-head">
+        <div class="ph-ic">🏠</div>
+        <div><h1>داشبورد</h1><p>نگاه کلی به وضعیت سرور، ترافیک و اعتبار ریلوی</p></div>
+        <div class="spacer"></div>
+      </div>
+
+      <div class="kpi-grid">
+        <div class="card kpi"><div class="bub b1">🔗</div><div><div class="v" id="kLinks">0</div><div class="l">کانفیگ‌ها</div></div></div>
+        <div class="card kpi"><div class="bub b2">✅</div><div><div class="v" id="kActive">0</div><div class="l">فعال</div></div></div>
+        <div class="card kpi"><div class="bub b3">📡</div><div><div class="v" id="kConns">0</div><div class="l">اتصالات زنده</div></div></div>
+        <div class="card kpi"><div class="bub b4">📶</div><div><div class="v" id="kTraffic">0 B</div><div class="l">ترافیک کل</div></div></div>
+      </div>
+
+      <div class="dash-grid">
+        <div class="card">
+          <div class="card-head"><span class="t">TRAFFIC · LIVE</span><span class="spacer"></span>
+            <span class="live-badge" style="color:#93b4fd;background:rgba(79,110,247,.1);border-color:rgba(79,110,247,.3)"><i style="background:#60a5fa"></i>زنده</span>
+          </div>
+          <div class="chart-wrap"><canvas id="trafficChart"></canvas></div>
+          <div class="chart-foot">
+            <span><span class="dot" style="background:#4f6ef7"></span>سرعت لحظه‌ای: <b id="chSpeed">0 B/s</b></span>
+            <span><span class="dot" style="background:#ec4899"></span>امروز: <b id="chToday">0 B</b></span>
+            <span style="margin-inline-start:auto">Up <b id="chReq">0</b> درخواست</span>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-head"><span class="t">PROCESSOR</span><span class="spacer"></span><span class="pill blue" id="cpuCores">2 cores</span></div>
+          <div class="ring-wrap">
+            <div class="ring-box">
+              <svg class="ring-svg" width="170" height="170">
+                <defs><linearGradient id="ringGrad" x1="0" y1="0" x2="1" y2="1">
+                  <stop offset="0%" stop-color="#4f6ef7"/><stop offset="100%" stop-color="#c084fc"/>
+                </linearGradient></defs>
+                <circle class="ring-bg" cx="85" cy="85" r="72"/>
+                <circle class="ring-val" id="cpuRing" cx="85" cy="85" r="72" stroke-dasharray="452" stroke-dashoffset="452"/>
+              </svg>
+              <div class="ring-center"><div class="p" id="cpuPct">0%</div><div class="l">CPU LOAD</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="dash-grid">
+        <!-- کارت اعتبار ریلوی — عین RailPanel -->
+        <div class="card rail-card">
+          <div class="card-head">
+            <span class="t">RAILWAY BALANCE</span><span class="spacer"></span>
+            <span class="live-badge" id="railLive" style="display:none"><i></i>LIVE</span>
+            <button class="btn" style="padding:6px 13px;font-size:11.5px" id="railTokenBtn">تغییر توکن</button>
+          </div>
+          <div id="railBody">
+            <div class="rail-empty">
+              <span class="big">🛰️</span>
+              برای نمایش دقیق مصرف <b>اعتبار ۵ دلاری ریلوی</b>، توکن API ریلوی را ثبت کن.<br>
+              <button class="btn btn-primary" style="margin-top:10px" id="railAddBtn">ثبت توکن ریلوی</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><span class="t">DISK STORAGE</span><span class="spacer"></span><span class="pill blue" id="diskPct2">0%</span></div>
+          <div class="bar-row"><span>مصرف دیسک</span><b id="diskTxt">—</b></div>
+          <div class="bar"><i id="diskBar"></i></div>
+          <div class="bar-row" style="margin-top:16px"><span>حجم آزاد</span><b id="diskFree">—</b></div>
+          <div class="stat-line" style="margin-top:6px"><span class="k">آپ‌تایم سرور</span><span class="v" id="upTxt">—</span></div>
+          <div class="stat-line"><span class="k">حافظه (RAM)</span><span class="v" id="memTxt">—</span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- کانفیگ‌ها -->
+    <section class="view" id="view-configs">
+      <div class="page-head">
+        <div class="ph-ic">🔗</div>
+        <div><h1>کانفیگ‌ها</h1><p>مدیریت لینک‌ها، مصرف و وضعیت اتصال</p></div>
+        <div class="spacer"></div>
+        <button class="btn btn-primary" id="addCfgBtn">＋ کانفیگ جدید</button>
+      </div>
+      <div class="toolbar">
+        <input class="inp" id="cfgSearch" placeholder="جستجوی نام کانفیگ…">
+      </div>
+      <div class="tbl-wrap">
+        <table class="tbl">
+          <thead><tr><th style="width:44px"></th><th>نام</th><th>پروتکل</th><th>وضعیت</th><th>مصرف</th><th>عملیات</th></tr></thead>
+          <tbody id="cfgBody"></tbody>
+        </table>
+        <div id="cfgEmpty" class="empty" style="display:none"><span class="e">🛸</span><p>هنوز کانفیگی نساخته‌ای.<br>از منوی «ساخت کانفیگ» شروع کن!</p></div>
+      </div>
+    </section>
+
+    <!-- گروه‌ها -->
+    <section class="view" id="view-groups">
+      <div class="page-head">
+        <div class="ph-ic">📁</div>
+        <div><h1>گروه‌ها</h1><p>ساخت گروه و اشتراک اختصاصی برای دسته‌ی کانفیگ‌ها</p></div>
+      </div>
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-head"><span class="t" style="letter-spacing:0;font-size:14px;color:var(--txt)">ساخت گروه جدید</span></div>
+          <div class="field">
+            <label>نام گروه</label>
+            <input class="inp" id="grpName" placeholder="مثلاً اختصاصی">
+          </div>
+          <button class="btn btn-primary btn-block btn-lg" id="grpCreate">ساخت گروه</button>
+        </div>
+        <div class="card">
+          <div class="card-head"><span class="t" style="letter-spacing:0;font-size:14px;color:var(--txt)">لیست گروه‌ها</span></div>
+          <div id="grpList"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ساخت کانفیگ (سه‌بعدی) -->
+    <section class="view" id="view-create">
+      <div class="page-head">
+        <div class="ph-ic">✨</div>
+        <div><h1>ساخت کانفیگ</h1><p>دستی یا خودکار — سریع و زنده</p></div>
+      </div>
+      <div class="create-grid">
+        <!-- ساخت دستی -->
+        <div class="create-card" id="cardManual">
+          <div class="grd-border"></div>
+          <div class="cc-head"><div class="bub">🛠️</div><h2>ساخت دستی</h2></div>
+          <p class="cc-sub">همه‌چیز را خودت تنظیم کن — پروتکل، حجم، انقضا، محدودیت IP و سرعت.</p>
+          <div class="fgrid">
+            <div class="field inp-3d full">
+              <label>نام</label>
+              <div style="display:flex;gap:8px">
+                <input class="inp" id="mName" placeholder="auto" dir="ltr">
+                <button class="icon-btn" id="mNameRnd" title="نام تصادفی" style="height:auto">🎲</button>
+              </div>
+            </div>
+            <div class="field inp-3d full">
+              <label>پروتکل</label>
+              <div class="sel" id="mProtoSel"><input type="hidden" id="mProto" value="vless-ws"></div>
+            </div>
+            <div class="field inp-3d">
+              <label>تعداد کانفیگ در سبد (۱–۲۰۰)</label>
+              <input class="inp inp-mono" id="mCount" type="number" min="1" max="200" value="1">
+            </div>
+            <div class="field inp-3d">
+              <label>انقضا (روز) — ۰ = بی‌نهایت</label>
+              <input class="inp inp-mono" id="mExp" type="number" min="0" value="0">
+            </div>
+            <div class="field inp-3d">
+              <label>محدودیت حجم</label>
+              <input class="inp inp-mono" id="mVol" type="number" min="0" step="0.5" value="0" placeholder="GB">
+            </div>
+            <div class="field inp-3d">
+              <label>محدودیت IP</label>
+              <input class="inp inp-mono" id="mIp" type="number" min="0" value="0" placeholder="0 = ∞">
+            </div>
+            <div class="field inp-3d full">
+              <label>سرعت (Mbps) — ۰ = نامحدود</label>
+              <input class="inp inp-mono" id="mSpeed" type="number" min="0" value="0">
+            </div>
+          </div>
+          <button class="btn-build" id="mBuild">＋ ساخت</button>
+        </div>
+
+        <!-- ساخت خودکار -->
+        <div class="create-card" id="cardAuto">
+          <div class="grd-border"></div>
+          <span class="sparkle" style="top:18px;left:40px;animation-delay:.2s"></span>
+          <span class="sparkle" style="top:70px;left:120px;animation-delay:1.4s"></span>
+          <span class="sparkle" style="top:30px;left:220px;animation-delay:2.3s"></span>
+          <div class="cc-head"><div class="bub" style="background:linear-gradient(135deg,#7c3aed,#ec4899)">🤖</div><h2>ساخت خودکار</h2><span class="rec">پیشنهادی</span></div>
+          <p class="cc-sub">با یک کلیک، یک کانفیگ بهینه‌ی جدید می‌سازیم. بعد از ساخت لینک VLESS و ساب در اختیارت است.</p>
+          <div class="fgrid">
+            <div class="field inp-3d full">
+              <label>پروتکل</label>
+              <div class="sel" id="aProtoSel"><input type="hidden" id="aProto" value="vless-ws"></div>
+            </div>
+            <div class="field inp-3d full">
+              <label>تعداد کانفیگ در سبد (۱–۲۰۰)</label>
+              <input class="inp inp-mono" id="aCount" type="number" min="1" max="200" value="1">
+            </div>
+          </div>
+          <button class="btn-build auto" id="aBuild"><span class="bolt">⚡</span> ساخت خودکار</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- آمار -->
+    <section class="view" id="view-stats">
+      <div class="page-head">
+        <div class="ph-ic">📊</div>
+        <div><h1>آمار</h1><p>ترافیک ساعتی، رتبه‌بندی کاربران و خطاها</p></div>
+        <div class="spacer"></div>
+        <button class="btn" id="statRefresh">🔄 تازه‌سازی</button>
+      </div>
+      <div class="dash-grid2" style="margin-bottom:14px">
+        <div class="card">
+          <div class="card-head"><span class="t">ترافیک ۲۴ ساعت اخیر</span></div>
+          <div class="bars" id="hourBars"></div>
+          <div class="chart-foot"><span>مجموع امروز: <b id="stToday">0 B</b></span></div>
+        </div>
+        <div class="card">
+          <div class="card-head"><span class="t">خلاصه</span></div>
+          <div id="statList"></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-head"><span class="t">پرمصرف‌ترین کاربر</span></div>
+        <div id="topUser"></div>
+      </div>
+    </section>
+
+    <!-- لاگ -->
+    <section class="view" id="view-logs">
+      <div class="page-head">
+        <div class="ph-ic">📋</div>
+        <div><h1>لاگ فعالیت</h1><p>آخرین رویدادهای پنل</p></div>
+        <div class="spacer"></div>
+        <button class="btn" id="logRefresh">🔄 تازه‌سازی</button>
+      </div>
+      <div class="card"><div id="logList"></div></div>
+    </section>
+
+    <!-- سیستم -->
+    <section class="view" id="view-system">
+      <div class="page-head">
+        <div class="ph-ic">🖥️</div>
+        <div><h1>سیستم</h1><p>منابع سرور، سهمیه مصرف و نگهداری</p></div>
+      </div>
+      <div class="quota-warn" id="quotaWarn">⚠️ به سقف مصرف ۱۰۰ گیگابایت نزدیک می‌شوی!</div>
+      <div class="sys-grid">
+        <div class="card">
+          <div class="card-head"><span class="t">CPU</span><span class="spacer"></span><span class="pill blue" id="sysCpuCores">—</span></div>
+          <div class="ring-wrap"><div class="ring-box" style="width:140px;height:140px">
+            <svg class="ring-svg" width="140" height="140">
+              <circle class="ring-bg" cx="70" cy="70" r="58"/>
+              <circle class="ring-val sysring" cx="70" cy="70" r="58" stroke-dasharray="364" stroke-dashoffset="364"/>
+            </svg>
+            <div class="ring-center"><div class="p" style="font-size:22px" id="sysCpu">0%</div><div class="l">CPU</div></div>
+          </div></div>
+        </div>
+        <div class="card">
+          <div class="card-head"><span class="t">MEMORY</span></div>
+          <div class="bar-row"><span>استفاده</span><b id="memPct">0%</b></div>
+          <div class="bar"><i id="memBar"></i></div>
+          <div class="stat-line" style="margin-top:14px"><span class="k">مجموع</span><span class="v" id="memTotal">—</span></div>
+          <div class="stat-line"><span class="k">استفاده‌شده</span><span class="v" id="memUsed">—</span></div>
+        </div>
+        <div class="card">
+          <div class="card-head"><span class="t">سهمیه ۱۰۰ گیگ</span></div>
+          <div class="bar-row"><span>مصرف کل دائمی</span><b id="qTxt">—</b></div>
+          <div class="bar"><i id="qBar"></i></div>
+          <div class="stat-line" style="margin-top:14px"><span class="k">سقف</span><span class="v">100 GB</span></div>
+          <div class="stat-line"><span class="k">درصد</span><span class="v" id="qPct">0%</span></div>
+        </div>
+      </div>
+      <div class="dash-grid2">
+        <div class="card">
+          <div class="card-head"><span class="t">پشتیبان‌گیری</span></div>
+          <p class="cc-sub">دانلود نسخه‌ی پشتیبان کامل از کانفیگ‌ها و تنظیمات، یا بازگردانی آن.</p>
+          <div style="display:flex;gap:10px;flex-wrap:wrap">
+            <button class="btn btn-primary" id="bkDl">⬇️ دریافت بکاپ</button>
+            <button class="btn" id="bkUp">⬆️ بازگردانی</button>
+            <input type="file" id="bkFile" accept=".json" style="display:none">
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-head"><span class="t">اعتبارنامه‌ی ادمین</span></div>
+          <div class="field"><label>نام کاربری جدید</label><input class="inp" id="crUser" placeholder="admin"></div>
+          <div class="field"><label>رمز عبور جدید</label><input class="inp" id="crPass" type="password" placeholder="••••••••"></div>
+          <button class="btn btn-primary btn-block" id="crSave">ذخیره تغییرات</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ربات تلگرام -->
+    <section class="view" id="view-telegram">
+      <div class="page-head">
+        <div class="ph-ic">✈️</div>
+        <div><h1>ربات تلگرام</h1><p>کنترل پنل از داخل تلگرام</p></div>
+      </div>
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-head"><span class="t" style="letter-spacing:0;font-size:14px;color:var(--txt)">تنظیمات ربات</span></div>
+          <div class="field"><label>توکن ربات (BotFather)</label><input class="inp inp-mono" id="tgToken" placeholder="123456:ABC-DEF..." dir="ltr"></div>
+          <div class="field"><label>چت‌آی‌دی ادمین</label><input class="inp inp-mono" id="tgChat" placeholder="123456789" dir="ltr"></div>
+          <button class="btn btn-primary btn-block" id="tgSave">فعال‌سازی ربات</button>
+          <button class="btn btn-err btn-block" id="tgOff" style="margin-top:10px">غیرفعال‌سازی</button>
+        </div>
+        <div class="card">
+          <div class="card-head"><span class="t" style="letter-spacing:0;font-size:14px;color:var(--txt)">وضعیت</span></div>
+          <div id="tgStatus"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- اخبار -->
+    <section class="view" id="view-news">
+      <div class="page-head">
+        <div class="ph-ic">📰</div>
+        <div><h1>اخبار</h1><p>تغییرات نسخه‌ها و نکته‌های پنل</p></div>
+      </div>
+      <div id="newsList"></div>
+    </section>
+  </main>
+</div>
+
+<!-- ══════════ مودال‌ها ══════════ -->
+<div class="modal-bg" id="modalBg">
+  <div class="modal" id="modalBox"></div>
+</div>
+
+<div class="toast-stack" id="toastStack"></div>
+
+<script src="https://cdn.jsdelivr.net/gh/davidshimjs/qrcodejs@master/qrcode.min.js"></script>
+<script src="/assets/app.js?v=2"></script>
+</body>
+</html>

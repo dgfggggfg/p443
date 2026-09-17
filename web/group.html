@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>گروه اشتراک — EAGLE Panel</title>
+<link rel="icon" type="image/svg+xml" href="/favicon.ico">
+<link rel="stylesheet" href="/assets/app.css?v=2">
+<style>
+.g-wrap{max-width:860px;margin:0 auto;padding:40px 20px 70px}
+.g-hero{text-align:center;padding:34px 24px;border-radius:26px;border:1px solid var(--line);
+  background:linear-gradient(165deg,rgba(255,255,255,.05),rgba(255,255,255,.015));box-shadow:var(--sh);
+  animation:fadeUp .5s both;margin-bottom:18px}
+.g-hero .lg{width:64px;height:64px;border-radius:20px;background:var(--grd);display:flex;align-items:center;justify-content:center;font-size:26px;margin:0 auto 14px;box-shadow:var(--sh-glow);animation:logoFloat 5s ease-in-out infinite}
+.g-hero h1{font-size:22px;font-weight:800}
+.g-hero p{color:var(--mut);font-size:12.5px;margin-top:6px}
+.g-hero .btns{display:flex;gap:10px;justify-content:center;margin-top:18px;flex-wrap:wrap}
+.m-row{display:flex;align-items:center;gap:12px;padding:14px 16px;border:1px solid var(--line);border-radius:16px;margin-bottom:10px;background:rgba(255,255,255,.02);transition:.25s;animation:fadeUp .45s both}
+.m-row:hover{border-color:var(--line2);transform:translateX(-4px)}
+.m-row .st{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+.m-row .nm{font-weight:700;font-size:13.5px;font-family:var(--mono);direction:ltr}
+.m-row .mt{font-size:10.5px;color:var(--mut);margin-top:3px}
+.m-row .spacer{flex:1}
+</style>
+</head>
+<body>
+<div class="orbs"><i></i><i></i><i></i></div>
+<div class="g-wrap">
+  <div class="g-hero">
+    <div class="lg">🦅</div>
+    <h1 id="gName">گروه اشتراک</h1>
+    <p id="gMeta">…</p>
+    <div class="btns">
+      <button class="btn btn-primary" id="gQr">QR Code ⊞</button>
+      <button class="btn" id="gCopy">⧉ کپی ساب گروه</button>
+    </div>
+    <div id="qrBox"></div>
+  </div>
+  <div class="card">
+    <div class="card-head"><span class="t" style="letter-spacing:0;font-size:14.5px;color:var(--txt)">کانفیگ‌های عضو</span><span class="spacer"></span><span class="pill blue" id="gCount">0</span></div>
+    <div id="members"></div>
+  </div>
+  <div style="text-align:center;margin-top:26px;color:var(--mut2);font-size:11px;letter-spacing:1.5px">EAGLE PANEL · RAILWAY EDITION</div>
+</div>
+<div class="toast-stack" id="toastStack"></div>
+<script>
+const $ = s => document.querySelector(s);
+function toast(msg, type = 'ok', ms = 3200) {
+  const b = document.createElement('div');
+  b.className = 'toast ' + type;
+  b.innerHTML = `<span class="ti">${type === 'ok' ? '✅' : '⛔'}</span><span>${msg}</span>`;
+  $('#toastStack').appendChild(b);
+  setTimeout(() => { b.classList.add('out'); setTimeout(() => b.remove(), 380); }, ms);
+}
+async function copyText(t) {
+  try { await navigator.clipboard.writeText(t); toast('کپی شد ✓'); }
+  catch { const ta = document.createElement('textarea'); ta.value = t; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); ta.remove(); toast('کپی شد ✓'); }
+}
+document.documentElement.dataset.theme = localStorage.getItem('eagle-sub-theme') || 'dark';
+const KEY = location.pathname.split('/').pop();
+(async () => {
+  try {
+    const d = await fetch('/api/group/' + KEY).then(r => { if (!r.ok) throw 'گروه پیدا نشد'; return r.json(); });
+    $('#gName').textContent = d.name || 'گروه اشتراک';
+    $('#gMeta').textContent = (d.expired ? '⚠️ این گروه منقضی شده' : 'اعتبار: ' + (d.days_left || 'نامحدود')) + ' · ' + (d.members || []).length + ' کانفیگ';
+    $('#gCount').textContent = (d.members || []).length;
+    $('#members').innerHTML = (d.members || []).map((m, i) => `
+      <div class="m-row" style="animation-delay:${i * 45}ms">
+        <span class="st" style="background:${m.allowed && !m.expired && !m.inactive ? '#22c55e' : '#ef4444'}"></span>
+        <div><div class="nm">${m.label}</div><div class="mt">${m.proto_name} · ${m.used_fmt} / ${m.limit_fmt}</div></div>
+        <span class="spacer"></span>
+        <button class="icon-btn" onclick="copyText('${m.vless_link.replace(/'/g, '')}')">⧉</button>
+      </div>`).join('') || '<div class="empty"><span class="e">📭</span><p>عضوی نیست</p></div>';
+    $('#gCopy').onclick = () => copyText(d.sub_url || '');
+    $('#gQr').onclick = () => {
+      const box = $('#qrBox');
+      if (box.dataset.on) { box.innerHTML = ''; box.dataset.on = ''; return; }
+      box.dataset.on = '1'; box.style.marginTop = '14px'; box.style.display = 'flex'; box.style.justifyContent = 'center';
+      if (window.QRCode) new QRCode(box, { text: d.sub_url, width: 190, height: 190 });
+    };
+  } catch (er) {
+    document.querySelector('.g-wrap').innerHTML = `<div class="empty" style="padding-top:110px"><span class="e">🚫</span><p>${er}</p></div>`;
+  }
+})();
+</script>
+</body>
+</html>

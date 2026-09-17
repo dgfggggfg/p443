@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>اطلاعات کانفیگ — EAGLE Panel</title>
+<link rel="icon" type="image/svg+xml" href="/favicon.ico">
+<link rel="stylesheet" href="/assets/app.css?v=2">
+<style>
+.sub-wrap{max-width:960px;margin:0 auto;padding:34px 20px 70px}
+.sub-top{display:flex;justify-content:flex-end;margin-bottom:18px}
+.sub-hero{
+  display:flex;align-items:center;gap:16px;padding:24px;border-radius:24px;
+  background:linear-gradient(165deg,rgba(255,255,255,.05),rgba(255,255,255,.015));
+  border:1px solid var(--line);box-shadow:var(--sh);animation:fadeUp .5s both;
+}
+[data-theme="light"] .sub-hero{background:#fff}
+.shield{
+  width:54px;height:54px;border-radius:18px;background:rgba(99,102,241,.15);
+  border:1px solid rgba(99,102,241,.3);display:flex;align-items:center;justify-content:center;
+  font-size:22px;color:#a5b4fc;
+}
+.sub-name{font-size:21px;font-weight:800;font-family:var(--mono);direction:ltr}
+.sub-uuid{font-size:11px;color:var(--mut);font-family:var(--mono);direction:ltr;text-align:left;margin-top:4px}
+.sub-hero .spacer{flex:1}
+.badge-on{display:inline-flex;align-items:center;gap:7px;font-size:12.5px;font-weight:700;color:#4ade80;background:rgba(34,197,94,.12);border:1px solid rgba(34,197,94,.35);padding:6px 14px;border-radius:20px}
+.badge-off{color:#f87171;background:rgba(239,68,68,.1);border-color:rgba(239,68,68,.35)}
+.sub-grid{display:grid;grid-template-columns:1.5fr 1fr;gap:14px;margin-top:16px}
+.ring-box{position:relative;width:150px;height:150px}
+.bars-24{display:flex;gap:16px;flex-wrap:wrap}
+.mini-cards{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:14px}
+.mini{
+  padding:16px;border-radius:18px;text-align:center;border:1px solid var(--line);
+  background:linear-gradient(165deg,rgba(255,255,255,.04),rgba(255,255,255,.012));
+  animation:fadeUp .5s both;
+}
+[data-theme="light"] .mini{background:#fff}
+.mini .ic{
+  width:42px;height:42px;margin:0 auto 10px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:17px;
+}
+.mini .l{font-size:11.5px;color:var(--mut)}
+.mini .v{font-size:15px;font-weight:800;font-family:var(--mono);margin-top:4px}
+.v.g{color:#4ade80}.v.y{color:#fcd34d}.v.b{color:#93b4fd}.v.p{color:#c4b5fd}
+.tech{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px}
+.tech .kv{background:rgba(255,255,255,.02);border:1px solid var(--line);border-radius:14px;padding:14px 16px}
+[data-theme="light"] .tech .kv{background:#fff}
+.tech .kv{border-bottom:1px solid var(--line)}
+@media(max-width:860px){.sub-grid,.mini-cards{grid-template-columns:1fr 1fr}.tech{grid-template-columns:1fr}}
+@media(max-width:560px){.sub-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="orbs"><i></i><i></i><i></i></div>
+
+<div class="sub-wrap">
+  <div class="sub-top">
+    <button class="btn" id="themeBtn2">☀️ تغییر تم</button>
+  </div>
+
+  <div class="sub-hero">
+    <div class="shield">🛡️</div>
+    <div>
+      <div class="sub-name" id="sName">…</div>
+      <div class="sub-uuid" id="sUuid">UUID: …</div>
+    </div>
+    <span class="spacer"></span>
+    <span class="badge-on" id="sBadge">● فعال</span>
+    <button class="btn btn-primary" id="sQr">QR Code ⊞</button>
+  </div>
+
+  <div class="sub-grid">
+    <div class="card" style="animation:fadeUp .55s both">
+      <div class="card-head"><span class="t">TRAFFIC OVERVIEW</span><span class="spacer"></span><span class="ic">📈</span></div>
+      <div style="display:flex;align-items:center;gap:18px;flex-wrap:wrap">
+        <div class="ring-box">
+          <svg class="ring-svg" width="150" height="150">
+            <defs><linearGradient id="ringGrad" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stop-color="#4f6ef7"/><stop offset="100%" stop-color="#c084fc"/>
+            </linearGradient></defs>
+            <circle class="ring-bg" cx="75" cy="75" r="63"/>
+            <circle class="ring-val" id="usageRing" cx="75" cy="75" r="63" stroke-dasharray="396" stroke-dashoffset="396"/>
+          </svg>
+          <div class="ring-center"><div class="p" id="uPct">0%</div><div class="l">مصرف‌شده</div></div>
+        </div>
+        <div style="flex:1;min-width:210px">
+          <div style="font-size:24px;font-weight:800;font-family:var(--mono);direction:ltr;text-align:right" id="uUsed">…</div>
+          <div class="bar-row"><span>سهمیه</span><b id="uLimit">…</b></div>
+          <div class="bar"><i id="uBar"></i></div>
+        </div>
+      </div>
+    </div>
+    <div class="card" style="animation:fadeUp .6s both">
+      <div class="card-head"><span class="t">SERVICE</span><span class="spacer"></span><span class="ic">⏱️</span></div>
+      <div class="stat-line"><span class="k">انقضا</span><span class="v" id="svcExp">…</span></div>
+      <div class="stat-line"><span class="k">IP Limit</span><span class="v" id="svcIp">…</span></div>
+      <div class="stat-line"><span class="k">Connection</span><span class="v" id="svcConn">…</span></div>
+      <div class="stat-line"><span class="k">Speed</span><span class="v" id="svcSpeed">نامحدود</span></div>
+    </div>
+  </div>
+
+  <div class="mini-cards">
+    <div class="mini"><div class="ic" style="background:rgba(99,102,241,.14)">📈</div><div class="l">مصرف فعلی</div><div class="v g" id="mcUsed">…</div></div>
+    <div class="mini"><div class="ic" style="background:rgba(245,158,11,.14)">⏳</div><div class="l">باقی‌مانده</div><div class="v y" id="mcRem">…</div></div>
+    <div class="mini"><div class="ic" style="background:rgba(56,189,248,.14)">🪟</div><div class="l">اتصالات فعال</div><div class="v b" id="mcConn">…</div></div>
+    <div class="mini"><div class="ic" style="background:rgba(139,92,246,.14)">📅</div><div class="l">زمان باقی‌مانده</div><div class="v p" id="mcDays">…</div></div>
+  </div>
+
+  <div class="card" style="margin-top:14px;animation:fadeUp .65s both">
+    <div class="card-head"><span class="t" style="letter-spacing:0;font-size:14.5px;color:var(--txt)">جزئیات فن</span><span class="spacer"></span><span class="ic">⚙️</span></div>
+    <div class="tech">
+      <div class="kv"><span class="k">Protocol</span><span class="v" id="tProto">…</span></div>
+      <div class="kv"><span class="k">Fingerprint</span><span class="v" id="tFp">…</span></div>
+      <div class="kv"><span class="k">IP Limit</span><span class="v" id="tIp">…</span></div>
+      <div class="kv"><span class="k">Connection Limit</span><span class="v" id="tConn">—</span></div>
+      <div class="kv"><span class="k">تاریخ انقضا</span><span class="v" id="tExp">…</span></div>
+      <div class="kv"><span class="k">آخرین اتصال</span><span class="v" id="tLast">…</span></div>
+    </div>
+    <div class="link-box"><input class="inp" id="sLink" readonly><button class="icon-btn" onclick="copyText(document.getElementById('sLink').value)">⧉ کپی</button></div>
+    <div class="link-box"><input class="inp" id="sSub" readonly><button class="icon-btn" onclick="copyText(document.getElementById('sSub').value)">⧉ کپی</button></div>
+    <div id="qrBox"></div>
+  </div>
+
+  <div style="text-align:center;margin-top:26px;color:var(--mut2);font-size:11px;letter-spacing:1.5px">EAGLE PANEL · RAILWAY EDITION</div>
+</div>
+
+<div class="modal-bg" id="modalBg"><div class="modal" id="modalBox"></div></div>
+<div class="toast-stack" id="toastStack"></div>
+
+<script src="https://cdn.jsdelivr.net/gh/davidshimjs/qrcodejs@master/qrcode.min.js"></script>
+<script>
+const $ = (s, p) => (p || document).querySelector(s);
+const UUID = location.pathname.split('/').pop();
+function toast(msg, type = 'ok', ms = 3200) {
+  const box = document.createElement('div');
+  box.className = 'toast ' + type;
+  box.innerHTML = `<span class="ti">${type === 'ok' ? '✅' : type === 'err' ? '⛔' : '⚠️'}</span><span>${msg}</span>`;
+  $('#toastStack').appendChild(box);
+  setTimeout(() => { box.classList.add('out'); setTimeout(() => box.remove(), 380); }, ms);
+}
+async function copyText(t) {
+  try { await navigator.clipboard.writeText(t); toast('کپی شد ✓'); }
+  catch { const ta = document.createElement('textarea'); ta.value = t; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); ta.remove(); toast('کپی شد ✓'); }
+}
+$('#themeBtn2').onclick = () => {
+  const h = document.documentElement;
+  h.dataset.theme = h.dataset.theme === 'dark' ? 'light' : 'dark';
+  localStorage.setItem('eagle-sub-theme', h.dataset.theme);
+};
+document.documentElement.dataset.theme = localStorage.getItem('eagle-sub-theme') || 'dark';
+
+(async function load() {
+  try {
+    const d = await fetch('/api/info/' + UUID).then(r => {
+      if (!r.ok) return r.json().then(j => Promise.reject(j.detail || 'خطا'));
+      return r.json();
+    });
+    $('#sName').textContent = d.label || 'کانفیگ';
+    $('#sUuid').textContent = 'UUID: ' + d.uuid + ' · ' + (d.panel_version || 'EAGLE');
+    const ok = d.active !== false && !d.expired;
+    $('#sBadge').className = ok ? 'badge-on' : 'badge-on badge-off';
+    $('#sBadge').textContent = ok ? '● فعال' : '● غیرفعال';
+    // مصرف
+    const pct = d.percent || 0;
+    $('#uPct').textContent = Math.round(pct) + '%';
+    $('#usageRing').style.strokeDashoffset = 396 * (1 - Math.min(100, pct) / 100);
+    $('#uUsed').textContent = (d.used_fmt || '0 B') + (d.limit_bytes ? '' : ' / ∞');
+    $('#uLimit').textContent = d.limit_fmt || 'نامحدود';
+    setTimeout(() => $('#uBar').style.width = Math.min(100, pct) + '%', 150);
+    // سرویس
+    $('#svcExp').textContent = d.days_left || 'نامحدود';
+    $('#svcIp').textContent = d.max_devices || 'نامحدود';
+    $('#svcConn').textContent = d.active_connections || 0;
+    // مینی‌کارت‌ها
+    $('#mcUsed').textContent = d.used_fmt || '0 B';
+    $('#mcRem').textContent = d.limit_bytes ? ((d.remaining_val || 0) + ' ' + (d.remaining_unit || '')) : 'نامحدود';
+    $('#mcConn').textContent = d.active_connections || 0;
+    $('#mcDays').textContent = d.days_left || 'نامحدود';
+    // فنی
+    $('#tProto').textContent = d.protocol || 'vless-ws';
+    $('#tFp').textContent = d.fingerprint || 'chrome';
+    $('#tIp').textContent = d.max_devices || 'نامحدود';
+    $('#tConn').textContent = d.active_connections || 0;
+    $('#tExp').textContent = d.expires_at ? d.expires_at.slice(0, 10) : 'نامحدود';
+    $('#tLast').textContent = d.last_connected_at ? d.last_connected_at.slice(0, 16).replace('T', ' ') : '—';
+    $('#sLink').value = d.vless_link || '';
+    $('#sSub').value = d.sub_url || '';
+    $('#sQr').onclick = () => {
+      const box = $('#qrBox');
+      if (box.dataset.on) { box.innerHTML = ''; box.dataset.on = ''; return; }
+      box.dataset.on = '1';
+      if (window.QRCode) new QRCode(box, { text: d.vless_link || d.sub_url, width: 210, height: 210 });
+    };
+  } catch (er) {
+    document.querySelector('.sub-wrap').innerHTML =
+      `<div class="empty" style="padding-top:110px"><span class="e">🚫</span><p>${er}</p></div>`;
+  }
+})();
+</script>
+</body>
+</html>
